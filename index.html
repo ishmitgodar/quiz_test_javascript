@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(skyblue, purple);
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .btn-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      padding: 13px;
+    }
+
+    .container {
+      width: 800px;
+      max-width: 80%;
+      background-color: white;
+      border-radius: 5px;
+      padding: 10px;
+      box-shadow: 0 0 10px 2px;
+    }
+
+    .ques-btn {
+      min-width: 70%;
+      text-align: left;
+      padding-bottom: 20px;
+      padding-right: 20px;
+      font-size: 25px;
+      font-weight: 600;
+    }
+
+    .btn {
+      background: aliceblue;
+      border: 1px solid #84c5fe;
+      height: 40px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      color: #004085;
+      background-color: #cce5ff;
+      border-color: #b8daff;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .timer {
+      display: flex;
+      justify-content: space-evenly;
+      width: 20%;
+      align-items: center;
+      background-color: #cce5ff;
+      border-radius: 5px;
+      padding: 0 8px;
+    }
+
+    .timer_sec {
+      font-size: 18px;
+      font-weight: 500;
+      background-color: #343a40;
+      color: #fff;
+      text-align: center;
+      line-height: 30px;
+      border-radius: 5px;
+      border: 1px solid #343a40;
+      padding: 0 10px;
+    }
+
+    .correct {
+      background-color: rgb(98, 206, 98);
+    }
+
+    .incorrect {
+      background-color: red;
+    }
+
+    .hide {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="question-container" class="hide">
+      <div class="header">
+        <div id="question" class="ques-btn">Question</div>
+        <div class="timer">
+          <div class="time_text">Time Left</div>
+          <div class="timer_sec">15</div>
+        </div>
+      </div>
+      <div id="answer-buttons" class="btn-grid"></div>
+    </div>
+
+    <div class="controls">
+      <div id="start-btn" class="start">
+        <button id="start" class="btn">Start</button>
+      </div>
+      <div id="next-btn" class="hide">
+        <button id="next" class="btn">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const startButton = document.getElementById('start');
+    const questionContainerElement = document.getElementById('question-container');
+    const questionElement = document.getElementById('question');
+    const answerButtonElements = document.getElementById('answer-buttons');
+    const nextButton = document.getElementById('next-btn');
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const questions = [
+      {
+        question: "A sleep inducing drug is formed by reacting acetone with which chlorinated compound?",
+        answers: [
+          { text: "chloroform", correct: true },
+          { text: "benzaldehyde", correct: false },
+          { text: "ethyl alcohol", correct: false },
+          { text: "chloretone", correct: false }
+        ]
+      },
+      {
+        question: "What is the unit of magnetic flux?",
+        answers: [
+          { text: "maxwell", correct: false },
+          { text: " aadarsaha", correct: false },
+          { text: "ishmit", correct: true },
+          { text: "roshan", correct: false }
+        ]
+      },
+      {
+        question: "Full form of AGI ?",
+        answers: [
+          { text: "Artifical General Intelligence", correct: true },
+          { text: "Alternative graph Integration", correct: false },
+          { text: "Artifical Geometrical Integration", correct: false },
+          { text: "Artifical Geminal Integration ", correct: true }
+        ]
+      },
+      {
+        question: "if electron enters into a magnetic field what would be it's path ?",
+        answers: [
+          { text: "helical or spiral", correct: false },
+          { text: "circular ", correct: false },
+          { text: "straignt", correct: true },
+          { text: "parabolic", correct: false }
+        ]
+      },
+      {
+        question: "What is the full form of OSI model?",
+        answers: [
+          { text: "Rekha Mam", correct: false },
+          { text: "Open system Interconnection ", correct: true },
+          { text: "Hitesh and Sandesh Don", correct: false },
+          { text: "Susmita", correct: false }
+        ]
+      },
+      {
+        question: "who discovered magnetic field due to electric current?",
+        answers: [
+          { text: "orested", correct: true },
+          { text: "JJ thompson ", correct: false },
+          { text: "Faraday", correct: false },
+          { text: "tesla", correct: false }
+        ]
+      },
+      {
+        question: "the difference in temparature in celcious scale is 20 degree celcious what would be the difference in farenheight scale?",
+        answers: [
+          { text: "20 degree farenheight", correct: false },
+          { text: "32 ", correct: true },
+          { text: "36", correct: false },
+          { text: "50", correct: false }
+        ]
+      }
+    ];
+
+    startButton.addEventListener('click', startGame);
+    nextButton.addEventListener('click', setNextQuestion);
+
+    function startGame() {
+      console.log('Game started');
+      startButton.classList.add('hide');
+      questionContainerElement.classList.remove('hide');
+      nextButton.classList.add('hide');
+      currentQuestionIndex = 0;
+      score = 0;
+      setNextQuestion();
+    }
+
+    function setNextQuestion() {
+      resetState();
+      if (currentQuestionIndex < questions.length) {
+        showQuestion(questions[currentQuestionIndex]);
+        nextButton.classList.add('hide');
+      } else {
+        questionElement.innerHTML = `Quiz Completed! Your Score: ${score}/${questions.length}`;
+        startButton.innerText = 'Restart';
+        startButton.classList.remove('hide');
+        nextButton.classList.add('hide');
+      }
+    }
+
+    function showQuestion(question) {
+      questionElement.innerHTML = question.question;
+      question.answers.forEach(answer => {
+        const button = document.createElement('button');
+        button.innerText = answer.text;
+        button.classList.add('btn');
+        if (answer.correct) {
+          button.dataset.correct = answer.correct;
+        }
+        button.addEventListener('click', selectAnswer);
+        answerButtonElements.appendChild(button);
+      });
+    }
+
+    function selectAnswer(e) {
+      const selectedButton = e.target;
+      const correct = selectedButton.dataset.correct === "true";
+      
+      if (correct) {
+        score++; // Increase score if the selected answer is correct
+      }
+
+      setStatusClass(selectedButton, correct);
+      Array.from(answerButtonElements.children).forEach(button => {
+        button.disabled = true;
+        setStatusClass(button, button.dataset.correct === "true");
+      });
+
+      nextButton.classList.remove('hide'); 
+      currentQuestionIndex++;
+    }
+
+    function setStatusClass(element, correct) {
+      clearStatusClass(element);
+      if (correct) {
+        element.classList.add('correct');
+      } else {
+        element.classList.add('incorrect');
+      }
+    }
+
+    function clearStatusClass(element) {
+      element.classList.remove('correct');
+      element.classList.remove('incorrect');
+    }
+
+    function resetState() {
+      while (answerButtonElements.firstChild) {
+        answerButtonElements.removeChild(answerButtonElements.firstChild);
+      }
+    }
+  </script>
+</body>
+</html>
